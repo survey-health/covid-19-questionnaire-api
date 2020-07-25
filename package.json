@@ -1,0 +1,47 @@
+{
+   "name": "glenbrook-questionnaire-api",
+   "version": "0.0.1",
+   "description": "API server for Glenbrook questionnaire",
+   "private": true,
+   "devDependencies": {
+      "@types/http-errors": "^1.6.3",
+      "@types/koa": "^2.11.2",
+      "@types/koa-bodyparser": "^4.3.0",
+      "@types/koa-compress": "^2.0.9",
+      "@types/koa__cors": "^3.0.1",
+      "@types/koa__router": "^8.0.2",
+      "@types/node": "^13.1.7",
+      "@types/node-cache": "^4.2.5",
+      "@types/yup": "^0.26.32",
+      "ts-node": "^8.6.2",
+      "ts-node-dev": "^1.0.0-pre.44",
+      "typescript": "^3.9.6"
+   },
+   "dependencies": {
+      "@js-joda/core": "^2.0.0",
+      "@koa/cors": "^3.0.0",
+      "@koa/router": "^8.0.8",
+      "@types/jsrsasign": "^8.0.3",
+      "body-parser": "^1.18.1",
+      "compression": "^1.7.4",
+      "cors": "^2.8.5",
+      "dotenv": "^8.2.0",
+      "express": "^4.15.4",
+      "express-validator": "^6.3.1",
+      "fast-node-logger": "^1.4.2",
+      "fm-data-api-client": "^0.5.4",
+      "http-errors": "^1.7.3",
+      "http-status-codes": "^1.4.0",
+      "jsrsasign": "^8.0.20",
+      "koa": "^2.11.0",
+      "koa-bodyparser": "^4.2.1",
+      "koa-compress": "^3.0.0",
+      "ldap-ts-client": "^0.14.0",
+      "node-cache": "^5.1.0",
+      "yup": "^0.28.3"
+   },
+   "scripts": {
+      "start": "NODE_EXTRA_CA_CERTS=./root.crt ts-node-dev --no-notify src/index.ts",
+      "build": "tsc"
+   }
+}

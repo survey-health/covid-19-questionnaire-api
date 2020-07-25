@@ -1,0 +1,15 @@
+{
+   "compilerOptions": {
+      "target": "ES2017",
+      "downlevelIteration": true,
+      "strict": true,
+      "noImplicitAny": true,
+      "esModuleInterop": true,
+      "module": "commonjs",
+      "moduleResolution": "node",
+      "outDir": "./build",
+      "emitDecoratorMetadata": true,
+      "experimentalDecorators": true,
+      "sourceMap": true
+   }
+}
