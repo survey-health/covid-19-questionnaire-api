@@ -28,6 +28,14 @@ router.post('/authenticate', async context => {
         
         return context.status = 200;
     } catch (e) {
+        if (e.code === '802' || e.type == 'invalid-json') {
+            context.body = {
+                status: 802,
+                message: "Unable to reach the database. Please try again later"
+            }
+            return context.status = 503
+        }
+
         if (e instanceof InvalidCredentialsError) {
             return context.status = 401;
         }
