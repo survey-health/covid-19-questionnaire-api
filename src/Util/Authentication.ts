@@ -20,34 +20,41 @@ export type User = {
 };
 
 export const dobLogin = async (id : string, dob: Date) : Promise<AuthenticationResponse> => {
-    const studentResult = await client
-        .layout<StudentFieldData>("Student")
-        .find(
-            { Web_ID_c: `==${id}`, Web_DOB_c: `==${dob.toLocaleDateString("en-US")}` },
-            {limit: 1},
-            true
-        );
-
-    if (studentResult.data.length) {
-        return {
-            jwt: generateJWT(studentResult.data[0].fieldData.Web_ID_c),
-            displayName: studentResult.data[0].fieldData.Web_DisplayName_c,
-        };
-    } else {
-        const facultyResult = await client
-            .layout<FacultyFieldData>("Faculty")
+    try {
+        const studentResult = await client
+            .layout<StudentFieldData>("Student")
             .find(
-                { Web_ID_c: `==${id}`, Web_DOB_c: `==${dob.toLocaleDateString("en-US")}` },
+                {Web_ID_c: `==${id}`, Web_DOB_c: `==${dob.toLocaleDateString("en-US")}`},
                 {limit: 1},
                 true
             );
 
-        if (facultyResult.data.length) {
+        if (studentResult.data.length) {
             return {
-                jwt: generateJWT(facultyResult.data[0].fieldData.Web_ID_c),
-                displayName: facultyResult.data[0].fieldData.Web_DisplayName_c,
+                jwt: generateJWT(studentResult.data[0].fieldData.Web_ID_c),
+                displayName: studentResult.data[0].fieldData.Web_DisplayName_c,
             };
+        } else {
+            const facultyResult = await client
+                .layout<FacultyFieldData>("Faculty")
+                .find(
+                    {Web_ID_c: `==${id}`, Web_DOB_c: `==${dob.toLocaleDateString("en-US")}`},
+                    {limit: 1},
+                    true
+                );
+
+            if (facultyResult.data.length) {
+                return {
+                    jwt: generateJWT(facultyResult.data[0].fieldData.Web_ID_c),
+                    displayName: facultyResult.data[0].fieldData.Web_DisplayName_c,
+                };
+            }
         }
+    } catch (e) {
+        if (e.code === '952') {
+            await client.clearToken();
+        }
+        throw e;
     }
 
     throw new InvalidCredentialsError('Could not find a user for these credentials.');
