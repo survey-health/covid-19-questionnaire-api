@@ -2,6 +2,7 @@ import { FacultyFieldData } from './Faculty';
 import Router from '@koa/router';
 import { StudentFieldData } from './Student';
 import { client } from '../../Util/FileMaker';
+import { getCachedQuestions } from "../../Util/Question";
 
 const router = new Router({ prefix: '/user' });
 
@@ -37,6 +38,22 @@ router.get('/', async context => {
             context.body = {
                 status: 802,
                 message: "Unable to reach the database. Please try again later"
+            }
+            context.status = 503
+        } else {
+            throw e;
+        }
+    }
+});
+
+router.get('/questions', async context => {
+    try {
+        context.body = await getCachedQuestions();
+    } catch (e) {
+        if (e.code === '802' || e.type == 'invalid-json') {
+            context.body = {
+                status : 401,
+                message : "Unable to reach the database. Please try again later"
             }
             context.status = 503
         } else {
