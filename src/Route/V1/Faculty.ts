@@ -1,15 +1,15 @@
-import * as yup from 'yup';
 import Router from '@koa/router';
-import { client } from '../../Util/FileMaker';
+import * as yup from 'yup';
+import {client} from '../../Util/FileMaker';
 
-const router = new Router({ prefix: '/faculty' });
+const router = new Router({prefix: '/faculty'});
 
 export type FacultyFieldData = {
-    Web_DisplayName_c: string;
-    Web_ID_c: string;
-    Web_DOB_c: string;
-    Web_DisplaySchool_c: string;
-    Web_SchoolID_c: string;
+    Web_DisplayName_c : string;
+    Web_ID_c : string;
+    Web_DOB_c : string;
+    Web_DisplaySchool_c : string;
+    Web_SchoolID_c : string;
 };
 
 router.get('/getCurrentQuestionnaire', async context => {

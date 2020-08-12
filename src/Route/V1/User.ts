@@ -1,10 +1,10 @@
-import { FacultyFieldData } from './Faculty';
 import Router from '@koa/router';
-import { StudentFieldData } from './Student';
-import { client } from '../../Util/FileMaker';
-import { getCachedQuestions } from "../../Util/Question";
+import {client} from '../../Util/FileMaker';
+import {getCachedQuestions} from "../../Util/Question";
+import {FacultyFieldData} from './Faculty';
+import {StudentFieldData} from './Student';
 
-const router = new Router({ prefix: '/user' });
+const router = new Router({prefix: '/user'});
 
 router.get('/', async context => {
     const employeeID = context.request.user?.employeeID;    

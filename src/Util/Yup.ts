@@ -22,13 +22,12 @@ class LocalDateSchema extends mixed<LocalDate>
         });
     }
 
-    protected _typeCheck(value : any)
-    {
+    protected _typeCheck = (value : any) : boolean => {
         return value instanceof LocalDate;
     }
 }
 
-export const localDate = () => new LocalDateSchema();
+export const localDate = () : LocalDateSchema => new LocalDateSchema();
 
 class LocalTimeSchema extends mixed<LocalTime>
 {
@@ -57,7 +56,7 @@ class LocalTimeSchema extends mixed<LocalTime>
     }
 }
 
-export const localTime = () => new LocalTimeSchema();
+export const localTime = () : LocalTimeSchema => new LocalTimeSchema();
 
 export const sundayTest : TestOptions = {
     test: value => {

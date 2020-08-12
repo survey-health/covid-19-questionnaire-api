@@ -1,10 +1,9 @@
-import * as yup from 'yup';
-
-import { InvalidCredentialsError } from "ldapjs";
 import Router from '@koa/router';
-import { login, dobLogin } from "../../Util/Authentication";
+import {InvalidCredentialsError} from "ldapjs";
+import * as yup from 'yup';
+import {login, dobLogin} from "../../Util/Authentication";
 
-const router = new Router({ prefix: '/login' });
+const router = new Router({prefix: '/login'});
 
 const loginSchema = yup.object({
     username: yup.string().ensure().trim(),

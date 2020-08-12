@@ -1,25 +1,23 @@
-import {Client, IClientConfig} from "ldap-ts-client";
-
-import {KJUR} from "jsrsasign";
 import dotenv from 'dotenv';
-import { InvalidCredentialsError } from "ldapjs";
-import Router from "@koa/router";
-import { client } from "../Util/FileMaker";
-import { FacultyFieldData } from "../Route/V1/Faculty";
-import { StudentFieldData } from "../Route/V1/Student";
+import {KJUR} from "jsrsasign";
+import {Client, IClientConfig} from "ldap-ts-client";
+import {InvalidCredentialsError} from "ldapjs";
+import {FacultyFieldData} from "../Route/V1/Faculty";
+import {StudentFieldData} from "../Route/V1/Student";
+import {client} from "../Util/FileMaker";
 
 dotenv.config();
 
 type AuthenticationResponse = {
-    jwt: string;
-    displayName: string;
+    jwt : string;
+    displayName : string;
 };
 
 export type User = {
     employeeID : string;
 };
 
-export const dobLogin = async (id : string, dob: Date) : Promise<AuthenticationResponse> => {
+export const dobLogin = async (id : string, dob : Date) : Promise<AuthenticationResponse> => {
     try {
         const studentResult = await client
             .layout<StudentFieldData>("Student")
@@ -60,14 +58,14 @@ export const dobLogin = async (id : string, dob: Date) : Promise<AuthenticationR
     throw new InvalidCredentialsError('Could not find a user for these credentials.');
 }
 
-export const login = async (username : string, password: string) : Promise<AuthenticationResponse> => {
+export const login = async (username : string, password : string) : Promise<AuthenticationResponse> => {
     let bindUsername = username;
 
     if (bindUsername.indexOf('\\') === -1 && bindUsername.indexOf('@') === -1) {
         bindUsername = (process.env.LDAP_PREFIX ?? "") + username;
     }
 
-    const config: IClientConfig = {
+    const config : IClientConfig = {
         ldapServerUrl: process.env.LDAP_URL ?? "",
         user: bindUsername,
         pass: password
@@ -106,7 +104,7 @@ export const login = async (username : string, password: string) : Promise<Authe
     };
 };
 
-const ldapFilter = (username: string) : string => {
+const ldapFilter = (username : string) : string => {
     const person = "(&(ObjectCategory=Person)(ObjectClass=User)";
     let filterUsername = username.replace('\\', '\\\\')
         .replace(')', '\\)')
@@ -123,7 +121,7 @@ const ldapFilter = (username: string) : string => {
     return person + "(samaccountname=" + filterUsername + "))";
 }
 
-export const generateJWT = (subject: string) : string => {
+export const generateJWT = (subject : string) : string => {
     const oPayload = {
         iat: KJUR.jws.IntDate.get('now'),
         exp: KJUR.jws.IntDate.get('now + 1hour'),
@@ -138,16 +136,16 @@ export const generateJWT = (subject: string) : string => {
     )
 };
 
-export const validateJWT = (jwt: string) : boolean => {
+export const validateJWT = (jwt : string) : boolean => {
     return KJUR.jws.JWS.verifyJWT(
         jwt,
         process.env.JWT_KEY ?? "",
         // @ts-ignore
-        { alg: ['HS256'] }
+        {alg: ['HS256']}
     )
 }
 
-export const bearerStrategy = (bearer: string) : User|null => {
+export const bearerStrategy = (bearer : string) : User|null => {
     const bearerParts = bearer.split(" ");
     
     if (bearerParts.length === 2 && validateJWT(bearerParts[1])) {

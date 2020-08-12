@@ -4,6 +4,6 @@ import {User} from './Util/Authentication';
 declare module "koa"
 {
     interface Request {
-        user: User|null;
+        user : User|null;
     }
 }

@@ -1,13 +1,13 @@
+import {Numerish} from "fm-data-api-client/lib/Layout";
 import LRUCache from "lru-cache";
 import {client} from "./FileMaker";
-import { Numerish } from "fm-data-api-client/lib/Layout";
 
 const cacheOptions = {
     max: 10,
     maxAge: 60*15*1000 // cache length in ms
 };
 
-const question: LRUCache<string, Question[]> = new LRUCache<string, Question[]>(cacheOptions);
+const question : LRUCache<string, Question[]> = new LRUCache<string, Question[]>(cacheOptions);
 
 export type Question = {
     id : Numerish;
@@ -37,7 +37,7 @@ export const getCachedQuestions = async () : Promise<Question[]> => {
 
     if (result.data.length) {
         questions = result.data.map(({fieldData}) => {
-            let question = {
+            const question = {
                 id : fieldData.ID,
                 number : fieldData.Number,
                 text : fieldData.Text.toString()
