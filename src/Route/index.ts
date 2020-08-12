@@ -1,7 +1,7 @@
 import Router from '@koa/router';
 import compositeV1Router from './V1';
 
-export default async () => {
+export default async () : Promise<Router> => {
     const router = new Router();
 
     const v1Router = await compositeV1Router();

@@ -1,8 +1,8 @@
-import Router from '@koa/router';
 import {promises as fs} from 'fs';
 import path from 'path';
+import Router from '@koa/router';
 
-export const compositeRouter = (directory : string, routerOptions?: Router.RouterOptions) => async () => {
+export const compositeRouter = (directory : string, routerOptions ?: Router.RouterOptions) => async () : Promise<Router> => {
     const router = new Router(routerOptions);
     const files = await fs.readdir(directory);
 

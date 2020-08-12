@@ -1,12 +1,13 @@
-import Koa from 'koa';
-import {ValidationError} from 'yup';
-import {bearerStrategy} from './Util/Authentication';
-import bodyParser from 'koa-bodyparser';
-import compositeRouter from './Route';
-import compress from 'koa-compress';
 import cors from '@koa/cors';
 import dotenv from 'dotenv';
 import {getStatusText} from 'http-status-codes';
+import Koa from 'koa';
+import bodyParser from 'koa-bodyparser';
+import compress from 'koa-compress';
+import {ValidationError} from 'yup';
+import compositeRouter from './Route';
+import {bearerStrategy} from './Util/Authentication';
+
 dotenv.config();
 
 (async () => {
@@ -41,6 +42,7 @@ dotenv.config();
                     };
                     return;
                 } catch (e) {
+                    console.log('error', e.message);
                 }
             }
 
@@ -67,8 +69,8 @@ dotenv.config();
             context.request.user = null;
         }
 
-        if ( context.request.user === null
-            && context.request.URL.pathname.toLowerCase().indexOf('/v1/login/') !== 0 ) {
+        if (context.request.user === null
+            && context.request.URL.pathname.toLowerCase().indexOf('/v1/login/') !== 0) {
             context.status = 401;
             return;
         }
