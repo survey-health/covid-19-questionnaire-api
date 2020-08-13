@@ -1,6 +1,6 @@
 import Router from '@koa/router';
 import * as yup from 'yup';
-import {client} from '../../Util/FileMaker';
+import {client, escapeFindString} from '../../Util/FileMaker';
 
 const router = new Router({prefix: '/student'});
 
@@ -14,13 +14,18 @@ export  type StudentFieldData = {
 
 router.get('/getCurrentQuestionnaire', async context => {
     const employeeID = context.request.user?.employeeID;
+    if (typeof employeeID !== "string") {
+        return context.status = 401;
+    }
     const layout = client.layout('Student');
 
     const result = await layout.find({
-        Web_ID_c: `==${employeeID}`,
+        Web_ID_c: `==${escapeFindString(employeeID)}`,
     }, {
         'script.prerequest': 'getCurrentQuestionnaire',
-        'script.prerequest.param': "{\"studentID\" : \"" + employeeID + "\"}",
+        'script.prerequest.param': JSON.stringify({
+            studentID:  escapeFindString(employeeID)
+        }),
     }, true);
 
     if (result.data.length === 0) {
@@ -47,12 +52,16 @@ const patchSchema = yup.object({
 
 router.put('/updateCurrentQuestionnaire', async context => {
     const employeeID = context.request.user?.employeeID;
+    if (typeof employeeID !== "string") {
+        return context.status = 401;
+    }
+
     const layout = client.layout('Student');
 
     const input = await patchSchema.validate(context.request.body);
 
     const scriptParam = {
-        "studentID": employeeID,
+        "studentID": escapeFindString(employeeID),
         answers: input.answers.map((answer) => {
             return {
                 ID_Question : answer.questionId,
@@ -63,7 +72,7 @@ router.put('/updateCurrentQuestionnaire', async context => {
     }
 
     const result = await layout.find({
-        Web_ID_c : `==${employeeID}`,
+        Web_ID_c : `==${escapeFindString(employeeID)}`,
     }, {
         script : 'putQuestionnaireAnswers',
         'script.param': JSON.stringify(scriptParam)

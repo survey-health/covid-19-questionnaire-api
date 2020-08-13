@@ -4,7 +4,7 @@ import {Client, IClientConfig} from "ldap-ts-client";
 import {InvalidCredentialsError} from "ldapjs";
 import {FacultyFieldData} from "../Route/V1/Faculty";
 import {StudentFieldData} from "../Route/V1/Student";
-import {client} from "../Util/FileMaker";
+import {client, escapeFindString} from "./FileMaker";
 
 dotenv.config();
 
@@ -19,10 +19,14 @@ export type User = {
 
 export const dobLogin = async (id : string, dob : Date) : Promise<AuthenticationResponse> => {
     try {
+        const filteredID = escapeFindString(id);
         const studentResult = await client
             .layout<StudentFieldData>("Student")
             .find(
-                {Web_ID_c: `==${id}`, Web_DOB_c: `==${dob.toLocaleDateString("en-US")}`},
+                {
+                    Web_ID_c: `==${filteredID}`,
+                    Web_DOB_c: `==${dob.toLocaleDateString("en-US")}`
+                },
                 {limit: 1},
                 true
             );
@@ -36,7 +40,10 @@ export const dobLogin = async (id : string, dob : Date) : Promise<Authentication
             const facultyResult = await client
                 .layout<FacultyFieldData>("Faculty")
                 .find(
-                    {Web_ID_c: `==${id}`, Web_DOB_c: `==${dob.toLocaleDateString("en-US")}`},
+                    {
+                        Web_ID_c: `==${filteredID}`,
+                        Web_DOB_c: `==${dob.toLocaleDateString("en-US")}`
+                    },
                     {limit: 1},
                     true
                 );
@@ -140,7 +147,7 @@ export const validateJWT = (jwt : string) : boolean => {
     return KJUR.jws.JWS.verifyJWT(
         jwt,
         process.env.JWT_KEY ?? "",
-        // @ts-ignore
+        // @ts-ignore the other attributes are not needed
         {alg: ['HS256']}
     )
 }
@@ -150,11 +157,11 @@ export const bearerStrategy = (bearer : string) : User|null => {
     
     if (bearerParts.length === 2 && validateJWT(bearerParts[1])) {
         const payload = KJUR.jws.JWS.parse(bearerParts[1]);
-        
-        // @ts-ignore
-        if (typeof payload.payloadObj.sub !== "undefined") {
+
+        // @ts-ignore sub is going to be there trust me
+        if (typeof payload?.payloadObj?.sub !== "undefined") {
             return {
-                // @ts-ignore
+                // @ts-ignore sub is going to be there trust me
                 employeeID: payload.payloadObj.sub
             };
         }
