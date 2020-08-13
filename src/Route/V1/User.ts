@@ -1,5 +1,5 @@
 import Router from '@koa/router';
-import {client} from '../../Util/FileMaker';
+import {client, escapeFindString} from '../../Util/FileMaker';
 import {getCachedQuestions} from "../../Util/Question";
 import {FacultyFieldData} from './Faculty';
 import {StudentFieldData} from './Student';
@@ -7,10 +7,13 @@ import {StudentFieldData} from './Student';
 const router = new Router({prefix: '/user'});
 
 router.get('/', async context => {
-    const employeeID = context.request.user?.employeeID;    
+    const employeeID = context.request.user?.employeeID;
+    if (typeof employeeID !== "string") {
+        return context.status = 401;
+    }
 
     try {
-        const studentResult = await client.layout<StudentFieldData>('Student').find({Web_ID_c: `==${employeeID}`}, {}, true);
+        const studentResult = await client.layout<StudentFieldData>('Student').find({Web_ID_c: `==${escapeFindString(employeeID)}`}, {}, true);
 
         if (studentResult.data.length) {
             context.body = studentResult.data.map(({fieldData}) => ({
@@ -21,7 +24,7 @@ router.get('/', async context => {
                 schoolId: fieldData.Web_SchoolID_c,
             }));
         } else {
-            const facultyResult = await client.layout<FacultyFieldData>('Faculty').find({Web_ID_c: `==${employeeID}`}, {}, true);
+            const facultyResult = await client.layout<FacultyFieldData>('Faculty').find({Web_ID_c: `==${escapeFindString(employeeID)}`}, {}, true);
 
             if (facultyResult.data.length) {
                 context.body = facultyResult.data.map(({fieldData}) => ({

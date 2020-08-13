@@ -10,4 +10,9 @@ export const client = new Client(
     process.env.FM_PASSWORD !== undefined ? process.env.FM_PASSWORD : ''
 );
 
+export const escapeFindString = (input : string) : string => {
+    return input.replace(/[.@*#?!=<>≥≤|[\]\\]/g, '\\$&');
+}
+
 export const dateUtil = new utils.DateUtil();
+
