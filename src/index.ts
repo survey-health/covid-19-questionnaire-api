@@ -69,8 +69,10 @@ dotenv.config();
             context.request.user = null;
         }
 
+        const requestUrlPath = context.request.URL.pathname.toLowerCase();
         if (context.request.user === null
-            && context.request.URL.pathname.toLowerCase().indexOf('/v1/login/') !== 0) {
+            && !requestUrlPath.startsWith('/v1/login/')
+            && !requestUrlPath.startsWith('/v1/health/')) {
             context.status = 401;
             return;
         }
