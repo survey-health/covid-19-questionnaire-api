@@ -111,6 +111,36 @@ export const login = async (username : string, password : string) : Promise<Auth
     };
 };
 
+export const samlLogin = async (username : string) : Promise<AuthenticationResponse> => {
+    const filteredUsername = escapeFindString(username);
+    const studentResult = await client
+        .layout("Student")
+        .find(
+            {
+                'Web_ID_c': '*'
+            },
+            {
+                'script.prerequest' : 'getIDFromUsername',
+                'script.prerequest.param' : JSON.stringify({
+                    username : filteredUsername
+                }),
+                limit: 1
+            },
+            true
+        );
+
+    if (studentResult['scriptResult.prerequest'] === undefined) {
+        throw new Error("no script result for user: " + username);
+    }
+
+    const scriptResult = JSON.parse(studentResult['scriptResult.prerequest']);
+
+    return {
+        jwt: generateJWT(scriptResult.id),
+        displayName: username
+    };
+}
+
 const ldapFilter = (username : string) : string => {
     const person = "(&(ObjectCategory=Person)(ObjectClass=User)";
     let filterUsername = username.replace('\\', '\\\\')

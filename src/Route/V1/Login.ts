@@ -1,7 +1,7 @@
 import Router from '@koa/router';
 import {InvalidCredentialsError} from "ldapjs";
 import * as yup from 'yup';
-import {login, dobLogin, generateJWT} from "../../Util/Authentication";
+import {login, dobLogin, generateJWT, samlLogin} from "../../Util/Authentication";
 import {sp, idp} from "../../Util/Saml"
 
 const router = new Router({prefix: '/login'});
@@ -94,10 +94,10 @@ router.post('/sp/acs', async context => {
         context.response.status = 200;
         const username = extract.attributes[process.env.SAML_ATTRIBUTE
             ?? 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress'];
-        const jwt = generateJWT(username)
+        const authResult = await samlLogin(username)
         context.cookies.set(
             samlCookieName,
-            jwt,
+            authResult.jwt,
             {
                 maxAge: 300*1000,//ms not seconds
                 sameSite: 'lax',
