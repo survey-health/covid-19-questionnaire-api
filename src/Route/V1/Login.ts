@@ -1,9 +1,12 @@
 import Router from '@koa/router';
 import {InvalidCredentialsError} from "ldapjs";
 import * as yup from 'yup';
-import {login, dobLogin} from "../../Util/Authentication";
+import {login, dobLogin, generateJWT} from "../../Util/Authentication";
+import {sp, idp} from "../../Util/Saml"
 
 const router = new Router({prefix: '/login'});
+
+const samlCookieName = 'saml'
 
 const loginSchema = yup.object({
     username: yup.string().ensure().trim(),
@@ -42,5 +45,73 @@ router.post('/authenticate', async context => {
         return context.status = 501;
     }
 });
+
+router.get('/sp/token', async context => {
+    if (context.request.headers['origin'] !== process.env.SAML_REACT_URL) {
+        context.status = 500
+        return context.body = {
+            error: 'Invalid CORS header'
+        }
+    }
+
+    const cookie = context.cookies.get(samlCookieName);
+    if (cookie === undefined || cookie.length < 10) {
+        context.status = 401
+        return context.body = {
+            error: 'Missing cookie'
+        }
+    }
+
+    context.cookies.set(
+        samlCookieName,
+        '',
+        {
+            maxAge: 0,//ms not seconds
+            sameSite: 'lax',
+            httpOnly: true,
+            secure: process.env.NODE_ENV !== 'development',
+            path: "/v1/login/"
+        }
+    );
+    context.status = 200;
+    return context.body = cookie;
+});
+
+router.get('/sp/redirect', async context => {
+    const {context: redirectUrl} = await sp.createLoginRequest(idp, 'redirect');
+    context.response.redirect(redirectUrl);
+});
+
+router.get('/sp/metadata', async context => {
+    context.response.body = sp.getMetadata();
+    context.response.type = 'text/xml';
+});
+
+router.post('/sp/acs', async context => {
+    try {
+        const {extract} = await sp.parseLoginResponse(idp, 'post', context.request);
+        context.response.body = login;
+        context.response.status = 200;
+        const username = extract.attributes[process.env.SAML_ATTRIBUTE
+            ?? 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress'];
+        const jwt = generateJWT(username)
+        context.cookies.set(
+            samlCookieName,
+            jwt,
+            {
+                maxAge: 300*1000,//ms not seconds
+                sameSite: 'lax',
+                httpOnly: true,
+                secure: process.env.NODE_ENV !== 'development',
+                path: "/v1/login/"
+            }
+        )
+        return context.response.redirect((process.env.SAML_REACT_URL ?? '') + "/#saml-success");
+    } catch (e) {
+        console.error('[FATAL] when parsing login response', e);
+        return context.response.redirect((process.env.SAML_REACT_URL ?? '') + "/#saml-error");
+    }
+});
+
 
 export default router;
