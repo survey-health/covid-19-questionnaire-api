@@ -56,7 +56,7 @@ dotenv.config();
     });
 
     app.use(bodyParser());
-    app.use(cors());
+    app.use(cors({credentials: true}));
     app.use(compress());
 
     app.use(async (context, next) => {

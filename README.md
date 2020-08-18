@@ -14,7 +14,7 @@ If you are interested in a turnkey solution, visit https://www.soliantconsulting
 ## Setup
 * Copy .env.dist to .env.
 * Change the settings to what are appropriate for your environment.  
-* AUTH_MODE should be set to either DOB or AD.
+* AUTH_MODE should be set to DOB, AD, or SAML.
 * Make sure you set JWT_KEY to a random value as it is used to ensure integrity of the logged in user. 
 
 ### LDAP/AD
@@ -24,6 +24,12 @@ If you want to use ldaps with a custom root certificate you will need to run nod
 ### DOB
 
 Using this mode all the LDAP_ settings are ignored and.
+
+### SAML
+
+You will need to set `SAML_ATTRIBUTE` to the exact name of the attribute that you will send with the saml assertion.
+`SAML_REACT_URL` must be set to the frontend so the backend knows where to redirect the user after saml is done.
+`SAML_NODE_URL` needs to be set to the url for this service.  If NODE_ENV is set to anything other then development both urls must be https.
 
 ## Running the API
 
