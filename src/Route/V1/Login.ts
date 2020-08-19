@@ -1,7 +1,7 @@
 import Router from '@koa/router';
 import {InvalidCredentialsError} from "ldapjs";
 import * as yup from 'yup';
-import {login, dobLogin, generateJWT, samlLogin} from "../../Util/Authentication";
+import {login, dobLogin, samlLogin} from "../../Util/Authentication";
 import {sp, idp} from "../../Util/Saml"
 
 const router = new Router({prefix: '/login'});

@@ -4,27 +4,36 @@ import {client, escapeFindString} from '../../Util/FileMaker';
 
 const router = new Router({prefix: '/student'});
 
-export  type StudentFieldData = {
+export type StudentFieldData = {
     Web_DisplayName_c : string;
     Web_ID_c : string;
     Web_DOB_c : string;
     Web_DisplaySchool_c : string;
     Web_SchoolID_c : string;
+    Web_CurDateStatus_c : string;
+    Web_GuardianIDList_c : string;
 };
 
-router.get('/getCurrentQuestionnaire', async context => {
+const getParamsSchema = yup.object({
+    studentId: yup.string(),
+});
+
+router.get('/getCurrentQuestionnaire/:studentId', async context => {
     const employeeID = context.request.user?.employeeID;
+    const params = await getParamsSchema.validate(context.params);
+
     if (typeof employeeID !== "string") {
         return context.status = 401;
     }
+
     const layout = client.layout('Student');
 
     const result = await layout.find({
-        Web_ID_c: `==${escapeFindString(employeeID)}`,
+        Web_ID_c: `==${escapeFindString(process.env.USER_MODE === 'STUDENT' ? employeeID : params.studentId)}`,
     }, {
         'script.prerequest': 'getCurrentQuestionnaire',
         'script.prerequest.param': JSON.stringify({
-            studentID:  escapeFindString(employeeID)
+            studentID:  escapeFindString(process.env.USER_MODE === 'STUDENT' ? employeeID : params.studentId)
         }),
     }, true);
 
@@ -50,18 +59,23 @@ const patchSchema = yup.object({
     }))
 });
 
-router.put('/updateCurrentQuestionnaire', async context => {
+const putParamsSchema = yup.object({
+    studentId: yup.string(),
+});
+
+router.put('/updateCurrentQuestionnaire/:studentId', async context => {
     const employeeID = context.request.user?.employeeID;
+    const params = await putParamsSchema.validate(context.params);
+
     if (typeof employeeID !== "string") {
         return context.status = 401;
     }
 
     const layout = client.layout('Student');
-
     const input = await patchSchema.validate(context.request.body);
 
     const scriptParam = {
-        "studentID": escapeFindString(employeeID),
+        "studentID": escapeFindString(process.env.USER_MODE === 'STUDENT' ? employeeID : params.studentId),
         answers: input.answers.map((answer) => {
             return {
                 ID_Question : answer.questionId,
@@ -72,7 +86,7 @@ router.put('/updateCurrentQuestionnaire', async context => {
     }
 
     const result = await layout.find({
-        Web_ID_c : `==${escapeFindString(employeeID)}`,
+        Web_ID_c : `==${escapeFindString(process.env.USER_MODE === 'STUDENT' ? employeeID : params.studentId)}`,
     }, {
         script : 'putQuestionnaireAnswers',
         'script.param': JSON.stringify(scriptParam)
