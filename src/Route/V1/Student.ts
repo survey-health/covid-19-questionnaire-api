@@ -33,7 +33,8 @@ router.get('/getCurrentQuestionnaire/:studentId', async context => {
     }, {
         'script.prerequest': 'getCurrentQuestionnaire',
         'script.prerequest.param': JSON.stringify({
-            studentID:  escapeFindString(process.env.USER_MODE === 'STUDENT' ? employeeID : params.studentId)
+            studentID:  escapeFindString(process.env.USER_MODE === 'STUDENT' ? employeeID : params.studentId),
+            parentID:  escapeFindString(employeeID),
         }),
     }, true);
 
@@ -74,15 +75,33 @@ router.put('/updateCurrentQuestionnaire/:studentId', async context => {
     const layout = client.layout('Student');
     const input = await patchSchema.validate(context.request.body);
 
-    const scriptParam = {
-        "studentID": escapeFindString(process.env.USER_MODE === 'STUDENT' ? employeeID : params.studentId),
-        answers: input.answers.map((answer) => {
-            return {
-                ID_Question : answer.questionId,
-                Answer_yn : answer.yes ? 'Yes' : 'No',
-                Answer_Number : answer.number,
-            }
-        })
+    let scriptParam = null;
+
+    if (process.env.USER_MODE === 'STUDENT') {
+        scriptParam = {
+            "studentID": escapeFindString(employeeID),
+            answers: input.answers.map((answer) => {
+                return {
+                    ID_Question : answer.questionId,
+                    Answer_yn : answer.yes ? 'Yes' : 'No',
+                    Answer_Number : answer.number,
+                }
+            })
+        }
+    }
+
+    if (process.env.USER_MODE === 'PARENT') {
+        scriptParam = {
+            "studentID": escapeFindString(params.studentId),
+            "parentID": escapeFindString(employeeID),
+            answers: input.answers.map((answer) => {
+                return {
+                    ID_Question : answer.questionId,
+                    Answer_yn : answer.yes ? 'Yes' : 'No',
+                    Answer_Number : answer.number,
+                }
+            })
+        }
     }
 
     const result = await layout.find({
