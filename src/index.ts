@@ -12,7 +12,8 @@ dotenv.config();
 
 (async () => {
     const app = new Koa();
-
+    app.proxy = process.env.NODE_ENV !== 'development'
+    
     app.use(async (context, next) => {
         try {
             await next();
