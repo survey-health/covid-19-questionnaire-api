@@ -15,6 +15,7 @@ If you are interested in a turnkey solution, visit https://www.soliantconsulting
 * Copy .env.dist to .env.
 * Change the settings to what are appropriate for your environment.  
 * AUTH_MODE should be set to DOB, AD, or SAML.
+* USER_MODE should be set to STUDENT or PARENT.
 * Make sure you set JWT_KEY to a random value as it is used to ensure integrity of the logged in user. 
 
 ### LDAP/AD
@@ -30,6 +31,14 @@ Using this mode all the LDAP_ settings are ignored and.
 You will need to set `SAML_ATTRIBUTE` to the exact name of the attribute that you will send with the saml assertion.
 `SAML_REACT_URL` must be set to the frontend so the backend knows where to redirect the user after saml is done.
 `SAML_NODE_URL` needs to be set to the url for this service.  If NODE_ENV is set to anything other then development both urls must be https.
+
+### STUDENT
+
+When USER_MODE is set to STUDENT, students and faculty will be allowed to log into the application.
+
+### PARENT
+
+When USER_MODE is set to PARENT, parents and faculty will be allowed to log into the application. Parents/Guardians will see a list of students and be allowed to fill out the questionnaire for each student.
 
 ## Running the API
 
