@@ -35,6 +35,7 @@ router.get('/getCurrentQuestionnaire/:studentId', async context => {
         'script.prerequest.param': JSON.stringify({
             studentID:  escapeFindString(process.env.USER_MODE === 'STUDENT' ? employeeID : params.studentId),
             parentID:  escapeFindString(employeeID),
+            userMode:  process.env.USER_MODE,
         }),
     }, true);
 
@@ -80,6 +81,7 @@ router.put('/updateCurrentQuestionnaire/:studentId', async context => {
     if (process.env.USER_MODE === 'STUDENT') {
         scriptParam = {
             "studentID": escapeFindString(employeeID),
+            userMode:  process.env.USER_MODE,
             answers: input.answers.map((answer) => {
                 return {
                     ID_Question : answer.questionId,
@@ -94,6 +96,7 @@ router.put('/updateCurrentQuestionnaire/:studentId', async context => {
         scriptParam = {
             "studentID": escapeFindString(params.studentId),
             "parentID": escapeFindString(employeeID),
+            userMode:  process.env.USER_MODE,
             answers: input.answers.map((answer) => {
                 return {
                     ID_Question : answer.questionId,
