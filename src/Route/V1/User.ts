@@ -84,7 +84,7 @@ router.get('/getStudents', async context => {
     const employeeID = context.request.user?.employeeID;    
     
     try {
-        const studentResult = await client.layout<StudentFieldData>('Student').find({Web_GuardianIDList_c: `${employeeID}\n`}, {}, true);
+        const studentResult = await client.layout<StudentFieldData>('Student').find({Web_GuardianIDList_c: `=${employeeID}`}, {}, true);
 
         context.body = studentResult.data.map(({fieldData}) => ({
             id: fieldData.Web_ID_c,
