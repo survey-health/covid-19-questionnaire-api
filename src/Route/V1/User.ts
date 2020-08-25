@@ -84,17 +84,29 @@ router.get('/getStudents', async context => {
     const employeeID = context.request.user?.employeeID;    
     
     try {
-        const studentResult = await client.layout<StudentFieldData>('Student').find({Web_GuardianIDList_c: `${employeeID}\n`}, {}, true);
+        const layout = client.layout('GuardianStudentJoin');
 
-        context.body = studentResult.data.map(({fieldData}) => ({
-            id: fieldData.Web_ID_c,
-            name: fieldData.Web_DisplayName_c,
-            type: 'student',
-            schoolName: fieldData.Web_DisplaySchool_c,
-            schoolId: fieldData.Web_SchoolID_c,
-            status: fieldData.Web_CurDateStatus_c ?? '' ,
-        }));
+        const studentResult = await layout.find({
+            Web_GuardianID_c: `==${employeeID}`,
+        }, {
+            'script': 'goToRelatedStudentsFromJoin',
+            'layout.response': 'Student' 
+        }, true);
 
+        if (studentResult.data.length) {
+            context.body = studentResult.data.map(({fieldData}) => {
+                return {
+                    id: fieldData.Web_ID_c,
+                    name: fieldData.Web_DisplayName_c,
+                    type: 'student',
+                    schoolName: fieldData.Web_DisplaySchool_c,
+                    schoolId: fieldData.Web_SchoolID_c,
+                    status: fieldData.Web_CurDateStatus_c ?? '' ,
+                }
+            });            
+        }
+
+        return [];
     } catch (e) {
         if (e.code === '802' || e.type == 'invalid-json') {
             context.body = {
