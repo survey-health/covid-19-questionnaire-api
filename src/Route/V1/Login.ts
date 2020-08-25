@@ -1,5 +1,6 @@
 import Router from '@koa/router';
 import {InvalidCredentialsError} from "ldapjs";
+import {BindingContext, PostBindingContext} from "samlify/types/src/entity";
 import * as yup from 'yup';
 import {login, dobLogin, samlLogin} from "../../Util/Authentication";
 import {sp, idp} from "../../Util/Saml"
@@ -77,10 +78,24 @@ router.get('/sp/token', async context => {
     return context.body = cookie;
 });
 
+const isPostBinding = (contex : BindingContext | PostBindingContext) : contex is PostBindingContext => {
+    return (contex as PostBindingContext).entityEndpoint !== undefined;
+}
+
 router.get('/sp/redirect', async context => {
+
+    const saml = await sp.createLoginRequest(idp, 'post');
+    if (isPostBinding(saml)) {
+        return context.body = `<html><body><form id="saml-form" method="post" action="${saml.entityEndpoint}" autocomplete="off">
+    <input type="hidden" name="SAMLRequest" value="${saml.context}" />
+</form><script type="text/javascript">
+(function(){document.forms[0].submit();})();
+</script></html></body>`
+    }
     const {context: redirectUrl} = await sp.createLoginRequest(idp, 'redirect');
     context.response.redirect(redirectUrl);
 });
+
 
 router.get('/sp/metadata', async context => {
     context.response.body = sp.getMetadata();
