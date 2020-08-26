@@ -48,10 +48,13 @@ router.post('/authenticate', async context => {
 });
 
 router.get('/sp/token', async context => {
-    if (context.request.headers['origin'] !== process.env.SAML_REACT_URL) {
+    const referrerUrl = new URL(context.request.headers['referer'])
+    const reactUrl = new URL(process.env.SAML_REACT_URL ?? "");
+
+    if (referrerUrl.origin !== reactUrl.origin) {
         context.status = 500
         return context.body = {
-            error: 'Invalid CORS header'
+            error: 'Invalid header'
         }
     }
 
@@ -83,17 +86,21 @@ const isPostBinding = (contex : BindingContext | PostBindingContext) : contex is
 }
 
 router.get('/sp/redirect', async context => {
-
-    const saml = await sp.createLoginRequest(idp, 'post');
-    if (isPostBinding(saml)) {
-        return context.body = `<html><body><form id="saml-form" method="post" action="${saml.entityEndpoint}" autocomplete="off">
-    <input type="hidden" name="SAMLRequest" value="${saml.context}" />
-</form><script type="text/javascript">
-(function(){document.forms[0].submit();})();
-</script></html></body>`
+    try {
+        if (process.env.SAML_SP_MODE === "POST") {
+            const saml = await sp.createLoginRequest(idp, 'post');
+            if (isPostBinding(saml)) {
+                return context.body = `<html><body><form method="post" action="${saml.entityEndpoint}" autocomplete="off">
+<input type="hidden" name="SAMLRequest" value="${saml.context}" />
+</form><script type="text/javascript">(function(){document.forms[0].submit();})();</script></html></body>`
+            }
+        } else {
+            const {context: redirectUrl} = await sp.createLoginRequest(idp, 'redirect');
+            context.response.redirect(redirectUrl + process.env.SAML_SP_REDIRECT_APPEND ?? '');
+        }
+    } catch (e) {
+        console.error('[FATAL] generating saml redirect', e);
     }
-    const {context: redirectUrl} = await sp.createLoginRequest(idp, 'redirect');
-    context.response.redirect(redirectUrl);
 });
 
 
