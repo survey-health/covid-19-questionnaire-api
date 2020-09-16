@@ -26,7 +26,7 @@
       "typescript": "^3.9.6"
    },
    "dependencies": {
-      "@authenio/samlify-node-xmllint": "^2.0.0",
+      "@authenio/samlify-validate-with-xmllint": "^1.0.2",
       "@js-joda/core": "^2.0.0",
       "@koa/cors": "^3.0.0",
       "@koa/router": "^8.0.8",
@@ -53,7 +53,7 @@
       "yup": "^0.28.3"
    },
    "scripts": {
-      "start": "NODE_EXTRA_CA_CERTS=./root.crt ts-node-dev --no-notify src/index.ts",
+      "start": "NODE_EXTRA_CA_CERTS=./root.crt ts-node-dev --inspect --no-notify -- src/index.ts",
       "build": "tsc",
       "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
       "lint:fix": "npm run lint -- --fix",

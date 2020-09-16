@@ -1,5 +1,5 @@
 import * as fs from 'fs';
-import * as validator from '@authenio/samlify-node-xmllint';
+import * as validator from '@authenio/samlify-validate-with-xmllint';
 import * as samlify from 'samlify';
 
 const binding = samlify.Constants.namespace.binding;
