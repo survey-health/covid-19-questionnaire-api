@@ -1,6 +1,11 @@
 import * as fs from 'fs';
-import * as validator from '@authenio/samlify-validate-with-xmllint';
+//this is cranky about the require below.
+// eslint-disable-next-line import/order
 import * as samlify from 'samlify';
+
+//there is a issue with the package so I cant import it https://github.com/authenio/samlify-validate-with-xmllint/issues/3
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const validator = require('@authenio/samlify-validate-with-xmllint');
 
 const binding = samlify.Constants.namespace.binding;
 
