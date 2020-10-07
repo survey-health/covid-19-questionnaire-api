@@ -4,7 +4,7 @@ import {getCachedQuestions} from "../../Util/Question";
 const router = new Router({prefix: '/health'});
 
 router.get('/', async context => {
-    const questions = await getCachedQuestions();
+    const questions = await getCachedQuestions(context.state.language);
     if (questions.length > 0) {
         context.response.status = 200;
         return context.body = {
