@@ -24,7 +24,7 @@ router.get('/', async context => {
 
         if (process.env.USER_MODE === 'STUDENT') {
             const studentResult = await client.layout<StudentFieldData>('Student').find({Web_ID_c: `==${employeeID}`}, {}, true);
-            
+
             if (studentResult.data.length) {
                 context.body = studentResult.data.map(({fieldData}) => ({
                     id: fieldData.Web_ID_c,
@@ -33,7 +33,7 @@ router.get('/', async context => {
                     schoolName: fieldData.Web_DisplaySchool_c,
                     schoolId: fieldData.Web_SchoolID_c,
                 }));
-    
+
                 userFound = true;
             }
         }
@@ -49,14 +49,14 @@ router.get('/', async context => {
                     schoolName: 'schoolName',
                     schoolId: 'schoolId',
                 }));
-    
+
                 userFound = true;
             }
         }
 
         if (!userFound) {
             const facultyResult = await client.layout<FacultyFieldData>('Faculty').find({Web_ID_c: `==${employeeID}`}, {}, true);
-            
+
             if (facultyResult.data.length) {
                 context.body = facultyResult.data.map(({fieldData}) => ({
                     id: fieldData.Web_ID_c,
@@ -81,8 +81,8 @@ router.get('/', async context => {
 });
 
 router.get('/getStudents', async context => {
-    const employeeID = context.request.user?.employeeID;    
-    
+    const employeeID = context.request.user?.employeeID;
+
     try {
         const layout = client.layout('GuardianStudentJoin');
 
@@ -90,7 +90,7 @@ router.get('/getStudents', async context => {
             Web_GuardianID_c: `==${employeeID}`,
         }, {
             'script': 'goToRelatedStudentsFromJoin',
-            'layout.response': 'Student' 
+            'layout.response': 'Student'
         }, true);
 
         if (studentResult.data.length) {
@@ -103,7 +103,7 @@ router.get('/getStudents', async context => {
                     schoolId: fieldData.Web_SchoolID_c,
                     status: fieldData.Web_CurDateStatus_c ?? '' ,
                 }
-            });            
+            });
         }
 
         return [];
@@ -122,7 +122,7 @@ router.get('/getStudents', async context => {
 
 router.get('/questions', async context => {
     try {
-        context.body = await getCachedQuestions();
+        context.body = await getCachedQuestions(context.state.language);
     } catch (e) {
         if (e.code === '802' || e.type == 'invalid-json') {
             context.body = {
