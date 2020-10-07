@@ -25,7 +25,8 @@ router.get('/getCurrentQuestionnaire', async context => {
     }, {
         'script.prerequest': 'getCurrentQuestionnaire',
         'script.prerequest.param': JSON.stringify({
-            facultyID: escapeFindString(employeeID)
+            facultyID: escapeFindString(employeeID),
+            language: context.state.language,
         }),
     }, true);
 
@@ -63,6 +64,7 @@ router.put('/updateCurrentQuestionnaire', async context => {
 
     const scriptParam = {
         "facultyID" : escapeFindString(employeeID),
+        language: context.state.language,
         answers : input.answers.map((answer) => {
             return {
                 ID_Question : answer.questionId,
