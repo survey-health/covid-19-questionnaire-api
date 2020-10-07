@@ -18,7 +18,7 @@ const getParamsSchema = yup.object({
     studentId: yup.string(),
 });
 
-router.get('/getCurrentQuestionnaire/:studentId', async context => {
+router.get('/get-current-questionnaire/:studentId', async context => {
     const employeeID = context.request.user?.employeeID;
     const params = await getParamsSchema.validate(context.params);
 
@@ -66,7 +66,7 @@ const putParamsSchema = yup.object({
     studentId: yup.string(),
 });
 
-router.put('/updateCurrentQuestionnaire/:studentId', async context => {
+router.put('/update-current-questionnaire/:studentId', async context => {
     const employeeID = context.request.user?.employeeID;
     const params = await putParamsSchema.validate(context.params);
 

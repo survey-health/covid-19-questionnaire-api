@@ -12,7 +12,7 @@ export type FacultyFieldData = {
     Web_SchoolID_c : string;
 };
 
-router.get('/getCurrentQuestionnaire', async context => {
+router.get('/get-current-questionnaire', async context => {
     const employeeID = context.request.user?.employeeID;
     if (typeof employeeID !== "string") {
         return context.status = 401;
@@ -52,7 +52,7 @@ const patchSchema = yup.object({
     }))
 });
 
-router.put('/updateCurrentQuestionnaire', async context => {
+router.put('/update-current-questionnaire', async context => {
     const employeeID = context.request.user?.employeeID;
     if (typeof employeeID !== "string") {
         return context.status = 401;

@@ -80,7 +80,7 @@ router.get('/', async context => {
     }
 });
 
-router.get('/getStudents', async context => {
+router.get('/get-students', async context => {
     const employeeID = context.request.user?.employeeID;
 
     try {
