@@ -10,6 +10,7 @@
       "@types/koa-compress": "^2.0.9",
       "@types/koa__cors": "^3.0.1",
       "@types/koa__router": "^8.0.2",
+      "@types/negotiator": "^0.6.1",
       "@types/node": "^13.1.7",
       "@types/node-cache": "^4.2.5",
       "@types/yup": "^0.26.32",
@@ -48,8 +49,9 @@
       "koa-compress": "^3.0.0",
       "ldap-ts-client": "^0.14.0",
       "lru-cache": "^6.0.0",
+      "negotiator": "^0.6.2",
       "node-cache": "^5.1.0",
-      "samlify": "^2.7.4",
+      "samlify": "^2.7.5",
       "yup": "^0.28.3"
    },
    "scripts": {

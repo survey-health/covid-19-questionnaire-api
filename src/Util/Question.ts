@@ -21,8 +21,9 @@ export type Question = {
     minValid ?: Numerish;
 };
 
-export const getCachedQuestions = async () : Promise<Question[]> => {
-    let questions = question.get('questions');
+export const getCachedQuestions = async (language : string) : Promise<Question[]> => {
+    const cacheKey = `questions-${language}`;
+    let questions = question.get(cacheKey);
 
     if (questions) {
         return questions;
@@ -33,6 +34,7 @@ export const getCachedQuestions = async () : Promise<Question[]> => {
         ID: `*`,
     }, {
         'script': 'getCurrentQuestions',
+        'script.param': JSON.stringify({language}),
     }, true);
 
     if (result.data.length) {
@@ -59,8 +61,8 @@ export const getCachedQuestions = async () : Promise<Question[]> => {
             return question;
         });
 
-        question.set('questions', questions);
-        questions = question.get('questions');
+        question.set(cacheKey, questions);
+        questions = question.get(cacheKey);
 
         return questions ? questions : [];
     }

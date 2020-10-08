@@ -18,7 +18,7 @@ const getParamsSchema = yup.object({
     studentId: yup.string(),
 });
 
-router.get('/getCurrentQuestionnaire/:studentId', async context => {
+router.get('/get-current-questionnaire/:studentId', async context => {
     const employeeID = context.request.user?.employeeID;
     const params = await getParamsSchema.validate(context.params);
 
@@ -36,6 +36,7 @@ router.get('/getCurrentQuestionnaire/:studentId', async context => {
             studentID:  escapeFindString(process.env.USER_MODE === 'STUDENT' ? employeeID : params.studentId),
             parentID:  escapeFindString(employeeID),
             userMode:  process.env.USER_MODE,
+            language: context.state.language,
         }),
     }, true);
 
@@ -65,7 +66,7 @@ const putParamsSchema = yup.object({
     studentId: yup.string(),
 });
 
-router.put('/updateCurrentQuestionnaire/:studentId', async context => {
+router.put('/update-current-questionnaire/:studentId', async context => {
     const employeeID = context.request.user?.employeeID;
     const params = await putParamsSchema.validate(context.params);
 
@@ -80,6 +81,7 @@ router.put('/updateCurrentQuestionnaire/:studentId', async context => {
 
     if (process.env.USER_MODE === 'STUDENT') {
         scriptParam = {
+            language: context.state.language,
             "studentID": escapeFindString(employeeID),
             userMode:  process.env.USER_MODE,
             answers: input.answers.map((answer) => {
@@ -94,6 +96,7 @@ router.put('/updateCurrentQuestionnaire/:studentId', async context => {
 
     if (process.env.USER_MODE === 'PARENT') {
         scriptParam = {
+            language: context.state.language,
             "studentID": escapeFindString(params.studentId),
             "parentID": escapeFindString(employeeID),
             userMode:  process.env.USER_MODE,

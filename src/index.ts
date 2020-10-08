@@ -4,6 +4,7 @@ import {getStatusText} from 'http-status-codes';
 import Koa from 'koa';
 import bodyParser from 'koa-bodyparser';
 import compress from 'koa-compress';
+import Negotiator from 'negotiator';
 import {ValidationError} from 'yup';
 import compositeRouter from './Route';
 import {bearerStrategy} from './Util/Authentication';
@@ -13,7 +14,7 @@ dotenv.config();
 (async () => {
     const app = new Koa();
     app.proxy = process.env.NODE_ENV !== 'development'
-    
+
     app.use(async (context, next) => {
         try {
             await next();
@@ -59,6 +60,14 @@ dotenv.config();
     app.use(bodyParser());
     app.use(cors({credentials: true}));
     app.use(compress());
+
+    app.use(async (context, next) => {
+        const negotiator = new Negotiator(context.request);
+        const language = negotiator.language(['en', 'es']);
+
+        context.state.language = language ?? 'en';
+        return next();
+    });
 
     app.use(async (context, next) => {
         if (
