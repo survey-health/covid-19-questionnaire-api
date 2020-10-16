@@ -39,13 +39,15 @@ export const getCachedQuestions = async (language : string) : Promise<Question[]
 
     if (result.data.length) {
         questions = result.data.map(({fieldData}) => {
+            const text = fieldData.Web_Text_c ?? fieldData.Text;
+            const subText = fieldData.Web_SubText_c ?? fieldData.SubText;
             const question = {
                 id : fieldData.ID,
                 number : fieldData.Number,
-                text : fieldData.Text.toString()
+                text : text.toString()
                     .replace(/\r\n/gi, '\n')
                     .replace(/\r/gi, '\n'),
-                subText : fieldData.SubText.toString()
+                subText : subText.toString()
                     .replace(/\r\n/gi, '\n')
                     .replace(/\r/gi, '\n'),
                 type : fieldData.Type,

@@ -31,5 +31,6 @@ export const sp = samlify.ServiceProvider({
     assertionConsumerService: [{
         Binding: binding.post,
         Location: process.env.SAML_NODE_URL + '/v1/login/sp/acs',
-    }]
+    }],
+    clockDrifts: [-2000, 0]//drift in MS
 });
