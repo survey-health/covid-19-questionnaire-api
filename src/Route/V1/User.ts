@@ -51,7 +51,7 @@ router.get('/', async context => {
             }
         }
 
-        if (type === 'guardian') {
+        if (type === 'faculty') {
             const facultyResult = await client.layout<FacultyFieldData>('Faculty').find({Web_ID_c: `==${employeeID}`}, {}, true);
 
             if (facultyResult.data.length) {
