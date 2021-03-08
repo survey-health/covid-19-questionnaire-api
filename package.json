@@ -55,7 +55,7 @@
       "yup": "^0.28.3"
    },
    "scripts": {
-      "start": "NODE_EXTRA_CA_CERTS=./root.crt ts-node-dev --inspect --no-notify -- src/index.ts",
+      "start": "ts-node-dev --inspect --no-notify -- src/index.ts",
       "build": "tsc",
       "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
       "lint:fix": "npm run lint -- --fix",

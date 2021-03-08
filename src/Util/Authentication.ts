@@ -15,6 +15,7 @@ type AuthenticationResponse = {
 
 export type User = {
     employeeID : string;
+    type : "student" | "guardian" | "faculty";
 };
 
 export const dobLogin = async (id : string, dob : Date) : Promise<AuthenticationResponse> => {
@@ -33,8 +34,11 @@ export const dobLogin = async (id : string, dob : Date) : Promise<Authentication
 
         if (studentResult.data.length) {
             return {
-                jwt: generateJWT(studentResult.data[0].fieldData.Web_ID_c),
-                displayName: studentResult.data[0].fieldData.Web_DisplayName_c,
+                jwt: generateJWT({
+                    employeeID : studentResult.data[0].fieldData.Web_ID_c,
+                    type : "student"
+                }),
+                displayName : studentResult.data[0].fieldData.Web_DisplayName_c,
             };
         } else {
             const facultyResult = await client
@@ -50,7 +54,10 @@ export const dobLogin = async (id : string, dob : Date) : Promise<Authentication
 
             if (facultyResult.data.length) {
                 return {
-                    jwt: generateJWT(facultyResult.data[0].fieldData.Web_ID_c),
+                    jwt: generateJWT({
+                        employeeID: facultyResult.data[0].fieldData.Web_ID_c,
+                        type: "faculty"
+                    }),
                     displayName: facultyResult.data[0].fieldData.Web_DisplayName_c,
                 };
             }
@@ -106,7 +113,10 @@ export const login = async (username : string, password : string) : Promise<Auth
     client.unbind();
 
     return {
-        jwt: generateJWT(employeeID),
+        jwt: generateJWT({
+            employeeID,
+            type: "student"
+        }),
         displayName: displayName
     };
 };
@@ -136,7 +146,10 @@ export const samlLogin = async (username : string) : Promise<AuthenticationRespo
     const scriptResult = JSON.parse(studentResult['scriptResult.prerequest']);
 
     return {
-        jwt: generateJWT(scriptResult.id),
+        jwt: generateJWT({
+            employeeID: scriptResult.id,
+            type: scriptResult.type
+        }),
         displayName: username
     };
 }
@@ -158,7 +171,7 @@ const ldapFilter = (username : string) : string => {
     return person + "(samaccountname=" + filterUsername + "))";
 }
 
-export const generateJWT = (subject : string) : string => {
+export const generateJWT = (subject : User) : string => {
     const oPayload = {
         iat: KJUR.jws.IntDate.get('now'),
         exp: KJUR.jws.IntDate.get('now + 1hour'),
@@ -192,7 +205,7 @@ export const bearerStrategy = (bearer : string) : User|null => {
         if (typeof payload?.payloadObj?.sub !== "undefined") {
             return {
                 // @ts-ignore sub is going to be there trust me
-                employeeID: payload.payloadObj.sub
+                ...payload.payloadObj.sub
             };
         }
     }

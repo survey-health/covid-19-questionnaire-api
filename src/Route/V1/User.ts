@@ -14,15 +14,14 @@ export  type GuardianFieldData = {
 
 router.get('/', async context => {
     const employeeID = context.request.user?.employeeID;
+    const type = context.request.user?.type;
 
     if (typeof employeeID !== "string") {
         return context.status = 401;
     }
 
     try {
-        let userFound = false;
-
-        if (process.env.USER_MODE === 'STUDENT') {
+        if (type === 'student') {
             const studentResult = await client.layout<StudentFieldData>('Student').find({Web_ID_c: `==${employeeID}`}, {}, true);
 
             if (studentResult.data.length) {
@@ -33,12 +32,11 @@ router.get('/', async context => {
                     schoolName: fieldData.Web_DisplaySchool_c,
                     schoolId: fieldData.Web_SchoolID_c,
                 }));
-
-                userFound = true;
+                return;
             }
         }
 
-        if (!userFound && process.env.USER_MODE === 'PARENT') {
+        if (type === 'guardian') {
             const guardianResult = await client.layout<GuardianFieldData>('Guardian').find({Web_ID_c: `==${employeeID}`}, {}, true);
 
             if (guardianResult.data.length) {
@@ -49,12 +47,11 @@ router.get('/', async context => {
                     schoolName: 'schoolName',
                     schoolId: 'schoolId',
                 }));
-
-                userFound = true;
+                return;
             }
         }
 
-        if (!userFound) {
+        if (type === 'guardian') {
             const facultyResult = await client.layout<FacultyFieldData>('Faculty').find({Web_ID_c: `==${employeeID}`}, {}, true);
 
             if (facultyResult.data.length) {
